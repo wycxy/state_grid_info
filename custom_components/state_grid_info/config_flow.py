@@ -20,6 +20,7 @@ from .const import (
     BILLING_STANDARD_MONTH_阶梯, BILLING_STANDARD_MONTH_阶梯_峰平谷,
     BILLING_STANDARD_MONTH_阶梯_峰平谷_变动阶梯,
     BILLING_STANDARD_MONTH_阶梯_峰平谷_变动价格, BILLING_STANDARD_OTHER_平均单价,
+    BILLING_STANDARD_峰谷计费,
     GAS_BILLING_OPTIONS, GAS_BILLING_NAMES,
     GAS_BILLING_YEAR_阶梯, GAS_BILLING_MONTH_阶梯, GAS_BILLING_平均单价,
     CONF_DATA_SOURCE, CONF_BILLING_STANDARD,
@@ -320,23 +321,23 @@ class StateGridInfoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if current_standard == GAS_BILLING_YEAR_阶梯:
             schema = {
                 vol.Required(CONF_GAS_YEAR_LADDER_START, default=existing_data.get(CONF_GAS_YEAR_LADDER_START, "0101")): cv.string,
-                vol.Required(CONF_GAS_LADDER_LEVEL_1, default=existing_data.get(CONF_GAS_LADDER_LEVEL_1, 360)): cv.positive_float,
+                vol.Required(CONF_GAS_LADDER_LEVEL_1, default=existing_data.get(CONF_GAS_LADDER_LEVEL_1, 600)): cv.positive_float,
                 vol.Required(CONF_GAS_LADDER_LEVEL_2, default=existing_data.get(CONF_GAS_LADDER_LEVEL_2, 600)): cv.positive_float,
-                vol.Required(CONF_GAS_LADDER_PRICE_1, default=existing_data.get(CONF_GAS_LADDER_PRICE_1, 2.65)): cv.positive_float,
-                vol.Required(CONF_GAS_LADDER_PRICE_2, default=existing_data.get(CONF_GAS_LADDER_PRICE_2, 2.85)): cv.positive_float,
-                vol.Required(CONF_GAS_LADDER_PRICE_3, default=existing_data.get(CONF_GAS_LADDER_PRICE_3, 3.50)): cv.positive_float,
+                vol.Required(CONF_GAS_LADDER_PRICE_1, default=existing_data.get(CONF_GAS_LADDER_PRICE_1, 2.66)): cv.positive_float,
+                vol.Required(CONF_GAS_LADDER_PRICE_2, default=existing_data.get(CONF_GAS_LADDER_PRICE_2, 3.46)): cv.positive_float,
+                vol.Required(CONF_GAS_LADDER_PRICE_3, default=existing_data.get(CONF_GAS_LADDER_PRICE_3, 3.46)): cv.positive_float,
             }
         elif current_standard == GAS_BILLING_MONTH_阶梯:
             schema = {
-                vol.Required(CONF_GAS_LADDER_LEVEL_1, default=existing_data.get(CONF_GAS_LADDER_LEVEL_1, 30)): cv.positive_float,
+                vol.Required(CONF_GAS_LADDER_LEVEL_1, default=existing_data.get(CONF_GAS_LADDER_LEVEL_1, 50)): cv.positive_float,
                 vol.Required(CONF_GAS_LADDER_LEVEL_2, default=existing_data.get(CONF_GAS_LADDER_LEVEL_2, 50)): cv.positive_float,
-                vol.Required(CONF_GAS_LADDER_PRICE_1, default=existing_data.get(CONF_GAS_LADDER_PRICE_1, 2.65)): cv.positive_float,
-                vol.Required(CONF_GAS_LADDER_PRICE_2, default=existing_data.get(CONF_GAS_LADDER_PRICE_2, 2.85)): cv.positive_float,
-                vol.Required(CONF_GAS_LADDER_PRICE_3, default=existing_data.get(CONF_GAS_LADDER_PRICE_3, 3.50)): cv.positive_float,
+                vol.Required(CONF_GAS_LADDER_PRICE_1, default=existing_data.get(CONF_GAS_LADDER_PRICE_1, 2.66)): cv.positive_float,
+                vol.Required(CONF_GAS_LADDER_PRICE_2, default=existing_data.get(CONF_GAS_LADDER_PRICE_2, 3.46)): cv.positive_float,
+                vol.Required(CONF_GAS_LADDER_PRICE_3, default=existing_data.get(CONF_GAS_LADDER_PRICE_3, 3.46)): cv.positive_float,
             }
         elif current_standard == GAS_BILLING_平均单价:
             schema = {
-                vol.Required(CONF_GAS_AVERAGE_PRICE, default=existing_data.get(CONF_GAS_AVERAGE_PRICE, 2.65)): cv.positive_float,
+                vol.Required(CONF_GAS_AVERAGE_PRICE, default=existing_data.get(CONF_GAS_AVERAGE_PRICE, 2.66)): cv.positive_float,
             }
 
         return schema
@@ -478,10 +479,10 @@ class StateGridInfoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Optional(CONF_IS_PREPAID, default=existing_data.get(CONF_IS_PREPAID, False)): cv.boolean,  # 是否预付费
                 vol.Required(CONF_YEAR_LADDER_START, default=existing_data.get(CONF_YEAR_LADDER_START, "0101")): cv.string,  # 格式：月日 (MMDD)
                 vol.Required(CONF_LADDER_LEVEL_1, default=existing_data.get(CONF_LADDER_LEVEL_1, 2160)): cv.positive_float,
-                vol.Required(CONF_LADDER_LEVEL_2, default=existing_data.get(CONF_LADDER_LEVEL_2, 4200)): cv.positive_float,
-                vol.Required(CONF_LADDER_PRICE_1, default=existing_data.get(CONF_LADDER_PRICE_1, 0.4983)): cv.positive_float,
-                vol.Required(CONF_LADDER_PRICE_2, default=existing_data.get(CONF_LADDER_PRICE_2, 0.5483)): cv.positive_float,
-                vol.Required(CONF_LADDER_PRICE_3, default=existing_data.get(CONF_LADDER_PRICE_3, 0.7983)): cv.positive_float,
+                vol.Required(CONF_LADDER_LEVEL_2, default=existing_data.get(CONF_LADDER_LEVEL_2, 3120)): cv.positive_float,
+                vol.Required(CONF_LADDER_PRICE_1, default=existing_data.get(CONF_LADDER_PRICE_1, 0.56)): cv.positive_float,
+                vol.Required(CONF_LADDER_PRICE_2, default=existing_data.get(CONF_LADDER_PRICE_2, 0.61)): cv.positive_float,
+                vol.Required(CONF_LADDER_PRICE_3, default=existing_data.get(CONF_LADDER_PRICE_3, 0.86)): cv.positive_float,
             }
         # 年阶梯峰平谷
         elif current_standard == BILLING_STANDARD_YEAR_阶梯_峰平谷:
@@ -489,22 +490,22 @@ class StateGridInfoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Optional(CONF_IS_PREPAID, default=existing_data.get(CONF_IS_PREPAID, False)): cv.boolean,  # 是否预付费
                 vol.Required(CONF_YEAR_LADDER_START, default=existing_data.get(CONF_YEAR_LADDER_START, "0101")): cv.string,  # 格式：月日 (MMDD)
                 vol.Required(CONF_LADDER_LEVEL_1, default=existing_data.get(CONF_LADDER_LEVEL_1, 2160)): cv.positive_float,
-                vol.Required(CONF_LADDER_LEVEL_2, default=existing_data.get(CONF_LADDER_LEVEL_2, 4200)): cv.positive_float,
+                vol.Required(CONF_LADDER_LEVEL_2, default=existing_data.get(CONF_LADDER_LEVEL_2, 3120)): cv.positive_float,
                 # 第一阶梯价格
-                vol.Required(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_TIP}", default=existing_data.get(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_TIP}", 0.5483)): cv.positive_float,
-                vol.Required(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_PEAK}", default=existing_data.get(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_PEAK}", 0.5483)): cv.positive_float,
-                vol.Required(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_FLAT}", default=existing_data.get(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_FLAT}", 0.5483)): cv.positive_float,
-                vol.Required(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_VALLEY}", default=existing_data.get(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_VALLEY}", 0.2983)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_TIP}", default=existing_data.get(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_TIP}", 0.56)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_PEAK}", default=existing_data.get(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_PEAK}", 0.56)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_FLAT}", default=existing_data.get(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_FLAT}", 0.56)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_VALLEY}", default=existing_data.get(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_VALLEY}", 0.31)): cv.positive_float,
                 # 第二阶梯价格
-                vol.Required(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_TIP}", default=existing_data.get(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_TIP}", 0.5983)): cv.positive_float,
-                vol.Required(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_PEAK}", default=existing_data.get(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_PEAK}", 0.5983)): cv.positive_float,
-                vol.Required(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_FLAT}", default=existing_data.get(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_FLAT}", 0.5983)): cv.positive_float,
-                vol.Required(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_VALLEY}", default=existing_data.get(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_VALLEY}", 0.3483)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_TIP}", default=existing_data.get(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_TIP}", 0.61)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_PEAK}", default=existing_data.get(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_PEAK}", 0.61)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_FLAT}", default=existing_data.get(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_FLAT}", 0.61)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_VALLEY}", default=existing_data.get(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_VALLEY}", 0.36)): cv.positive_float,
                 # 第三阶梯价格
-                vol.Required(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_TIP}", default=existing_data.get(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_TIP}", 0.8483)): cv.positive_float,
-                vol.Required(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_PEAK}", default=existing_data.get(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_PEAK}", 0.8483)): cv.positive_float,
-                vol.Required(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_FLAT}", default=existing_data.get(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_FLAT}", 0.8483)): cv.positive_float,
-                vol.Required(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_VALLEY}", default=existing_data.get(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_VALLEY}", 0.5983)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_TIP}", default=existing_data.get(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_TIP}", 0.86)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_PEAK}", default=existing_data.get(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_PEAK}", 0.86)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_FLAT}", default=existing_data.get(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_FLAT}", 0.86)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_VALLEY}", default=existing_data.get(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_VALLEY}", 0.61)): cv.positive_float,
             }
         # 月阶梯
         elif current_standard == BILLING_STANDARD_MONTH_阶梯:
@@ -629,6 +630,12 @@ class StateGridInfoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             schema = {
                 vol.Optional(CONF_IS_PREPAID, default=existing_data.get(CONF_IS_PREPAID, False)): cv.boolean,  # 是否预付费
                 vol.Required(CONF_AVERAGE_PRICE, default=existing_data.get(CONF_AVERAGE_PRICE, 0.6)): cv.positive_float,
+            }
+        elif current_standard == BILLING_STANDARD_峰谷计费:
+            schema = {
+                vol.Optional(CONF_IS_PREPAID, default=existing_data.get(CONF_IS_PREPAID, False)): cv.boolean,
+                vol.Required(CONF_PRICE_PEAK, default=existing_data.get(CONF_PRICE_PEAK, 0.598)): cv.positive_float,
+                vol.Required(CONF_PRICE_VALLEY, default=existing_data.get(CONF_PRICE_VALLEY, 0.448)): cv.positive_float,
             }
 
         return schema
@@ -1004,10 +1011,10 @@ class StateGridInfoOptionsFlowHandler(config_entries.OptionsFlow):
                 vol.Optional(CONF_IS_PREPAID, default=existing_data.get(CONF_IS_PREPAID, False)): cv.boolean,
                 vol.Required(CONF_YEAR_LADDER_START, default=existing_data.get(CONF_YEAR_LADDER_START, "0101")): cv.string,
                 vol.Required(CONF_LADDER_LEVEL_1, default=existing_data.get(CONF_LADDER_LEVEL_1, 2160)): cv.positive_float,
-                vol.Required(CONF_LADDER_LEVEL_2, default=existing_data.get(CONF_LADDER_LEVEL_2, 4200)): cv.positive_float,
-                vol.Required(CONF_LADDER_PRICE_1, default=existing_data.get(CONF_LADDER_PRICE_1, 0.4983)): cv.positive_float,
-                vol.Required(CONF_LADDER_PRICE_2, default=existing_data.get(CONF_LADDER_PRICE_2, 0.5483)): cv.positive_float,
-                vol.Required(CONF_LADDER_PRICE_3, default=existing_data.get(CONF_LADDER_PRICE_3, 0.7983)): cv.positive_float,
+                vol.Required(CONF_LADDER_LEVEL_2, default=existing_data.get(CONF_LADDER_LEVEL_2, 3120)): cv.positive_float,
+                vol.Required(CONF_LADDER_PRICE_1, default=existing_data.get(CONF_LADDER_PRICE_1, 0.56)): cv.positive_float,
+                vol.Required(CONF_LADDER_PRICE_2, default=existing_data.get(CONF_LADDER_PRICE_2, 0.61)): cv.positive_float,
+                vol.Required(CONF_LADDER_PRICE_3, default=existing_data.get(CONF_LADDER_PRICE_3, 0.86)): cv.positive_float,
             }
         # 年阶梯峰平谷
         elif current_standard == BILLING_STANDARD_YEAR_阶梯_峰平谷:
@@ -1015,22 +1022,22 @@ class StateGridInfoOptionsFlowHandler(config_entries.OptionsFlow):
                 vol.Optional(CONF_IS_PREPAID, default=existing_data.get(CONF_IS_PREPAID, False)): cv.boolean,
                 vol.Required(CONF_YEAR_LADDER_START, default=existing_data.get(CONF_YEAR_LADDER_START, "0101")): cv.string,
                 vol.Required(CONF_LADDER_LEVEL_1, default=existing_data.get(CONF_LADDER_LEVEL_1, 2160)): cv.positive_float,
-                vol.Required(CONF_LADDER_LEVEL_2, default=existing_data.get(CONF_LADDER_LEVEL_2, 4200)): cv.positive_float,
+                vol.Required(CONF_LADDER_LEVEL_2, default=existing_data.get(CONF_LADDER_LEVEL_2, 3120)): cv.positive_float,
                 # 第一阶梯价格
-                vol.Required(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_TIP}", default=existing_data.get(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_TIP}", 0.5483)): cv.positive_float,
-                vol.Required(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_PEAK}", default=existing_data.get(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_PEAK}", 0.5483)): cv.positive_float,
-                vol.Required(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_FLAT}", default=existing_data.get(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_FLAT}", 0.5483)): cv.positive_float,
-                vol.Required(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_VALLEY}", default=existing_data.get(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_VALLEY}", 0.2983)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_TIP}", default=existing_data.get(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_TIP}", 0.56)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_PEAK}", default=existing_data.get(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_PEAK}", 0.56)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_FLAT}", default=existing_data.get(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_FLAT}", 0.56)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_VALLEY}", default=existing_data.get(f"{CONF_LADDER_PRICE_1}_{CONF_PRICE_VALLEY}", 0.31)): cv.positive_float,
                 # 第二阶梯价格
-                vol.Required(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_TIP}", default=existing_data.get(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_TIP}", 0.5983)): cv.positive_float,
-                vol.Required(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_PEAK}", default=existing_data.get(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_PEAK}", 0.5983)): cv.positive_float,
-                vol.Required(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_FLAT}", default=existing_data.get(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_FLAT}", 0.5983)): cv.positive_float,
-                vol.Required(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_VALLEY}", default=existing_data.get(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_VALLEY}", 0.3483)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_TIP}", default=existing_data.get(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_TIP}", 0.61)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_PEAK}", default=existing_data.get(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_PEAK}", 0.61)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_FLAT}", default=existing_data.get(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_FLAT}", 0.61)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_VALLEY}", default=existing_data.get(f"{CONF_LADDER_PRICE_2}_{CONF_PRICE_VALLEY}", 0.36)): cv.positive_float,
                 # 第三阶梯价格
-                vol.Required(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_TIP}", default=existing_data.get(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_TIP}", 0.8483)): cv.positive_float,
-                vol.Required(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_PEAK}", default=existing_data.get(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_PEAK}", 0.8483)): cv.positive_float,
-                vol.Required(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_FLAT}", default=existing_data.get(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_FLAT}", 0.8483)): cv.positive_float,
-                vol.Required(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_VALLEY}", default=existing_data.get(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_VALLEY}", 0.5983)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_TIP}", default=existing_data.get(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_TIP}", 0.86)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_PEAK}", default=existing_data.get(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_PEAK}", 0.86)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_FLAT}", default=existing_data.get(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_FLAT}", 0.86)): cv.positive_float,
+                vol.Required(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_VALLEY}", default=existing_data.get(f"{CONF_LADDER_PRICE_3}_{CONF_PRICE_VALLEY}", 0.61)): cv.positive_float,
             }
         # 月阶梯
         elif current_standard == BILLING_STANDARD_MONTH_阶梯:
@@ -1154,6 +1161,12 @@ class StateGridInfoOptionsFlowHandler(config_entries.OptionsFlow):
                 vol.Optional(CONF_IS_PREPAID, default=existing_data.get(CONF_IS_PREPAID, False)): cv.boolean,
                 vol.Required(CONF_AVERAGE_PRICE, default=existing_data.get(CONF_AVERAGE_PRICE, 0.6)): cv.positive_float,
             }
+        elif current_standard == BILLING_STANDARD_峰谷计费:
+            schema = {
+                vol.Optional(CONF_IS_PREPAID, default=existing_data.get(CONF_IS_PREPAID, False)): cv.boolean,
+                vol.Required(CONF_PRICE_PEAK, default=existing_data.get(CONF_PRICE_PEAK, 0.598)): cv.positive_float,
+                vol.Required(CONF_PRICE_VALLEY, default=existing_data.get(CONF_PRICE_VALLEY, 0.448)): cv.positive_float,
+            }
 
         return schema
 
@@ -1167,23 +1180,23 @@ class StateGridInfoOptionsFlowHandler(config_entries.OptionsFlow):
         if current_standard == GAS_BILLING_YEAR_阶梯:
             schema = {
                 vol.Required(CONF_GAS_YEAR_LADDER_START, default=existing_data.get(CONF_GAS_YEAR_LADDER_START, "0101")): cv.string,
-                vol.Required(CONF_GAS_LADDER_LEVEL_1, default=existing_data.get(CONF_GAS_LADDER_LEVEL_1, 360)): cv.positive_float,
+                vol.Required(CONF_GAS_LADDER_LEVEL_1, default=existing_data.get(CONF_GAS_LADDER_LEVEL_1, 600)): cv.positive_float,
                 vol.Required(CONF_GAS_LADDER_LEVEL_2, default=existing_data.get(CONF_GAS_LADDER_LEVEL_2, 600)): cv.positive_float,
-                vol.Required(CONF_GAS_LADDER_PRICE_1, default=existing_data.get(CONF_GAS_LADDER_PRICE_1, 2.65)): cv.positive_float,
-                vol.Required(CONF_GAS_LADDER_PRICE_2, default=existing_data.get(CONF_GAS_LADDER_PRICE_2, 2.85)): cv.positive_float,
-                vol.Required(CONF_GAS_LADDER_PRICE_3, default=existing_data.get(CONF_GAS_LADDER_PRICE_3, 3.50)): cv.positive_float,
+                vol.Required(CONF_GAS_LADDER_PRICE_1, default=existing_data.get(CONF_GAS_LADDER_PRICE_1, 2.66)): cv.positive_float,
+                vol.Required(CONF_GAS_LADDER_PRICE_2, default=existing_data.get(CONF_GAS_LADDER_PRICE_2, 3.46)): cv.positive_float,
+                vol.Required(CONF_GAS_LADDER_PRICE_3, default=existing_data.get(CONF_GAS_LADDER_PRICE_3, 3.46)): cv.positive_float,
             }
         elif current_standard == GAS_BILLING_MONTH_阶梯:
             schema = {
-                vol.Required(CONF_GAS_LADDER_LEVEL_1, default=existing_data.get(CONF_GAS_LADDER_LEVEL_1, 30)): cv.positive_float,
+                vol.Required(CONF_GAS_LADDER_LEVEL_1, default=existing_data.get(CONF_GAS_LADDER_LEVEL_1, 50)): cv.positive_float,
                 vol.Required(CONF_GAS_LADDER_LEVEL_2, default=existing_data.get(CONF_GAS_LADDER_LEVEL_2, 50)): cv.positive_float,
-                vol.Required(CONF_GAS_LADDER_PRICE_1, default=existing_data.get(CONF_GAS_LADDER_PRICE_1, 2.65)): cv.positive_float,
-                vol.Required(CONF_GAS_LADDER_PRICE_2, default=existing_data.get(CONF_GAS_LADDER_PRICE_2, 2.85)): cv.positive_float,
-                vol.Required(CONF_GAS_LADDER_PRICE_3, default=existing_data.get(CONF_GAS_LADDER_PRICE_3, 3.50)): cv.positive_float,
+                vol.Required(CONF_GAS_LADDER_PRICE_1, default=existing_data.get(CONF_GAS_LADDER_PRICE_1, 2.66)): cv.positive_float,
+                vol.Required(CONF_GAS_LADDER_PRICE_2, default=existing_data.get(CONF_GAS_LADDER_PRICE_2, 3.46)): cv.positive_float,
+                vol.Required(CONF_GAS_LADDER_PRICE_3, default=existing_data.get(CONF_GAS_LADDER_PRICE_3, 3.46)): cv.positive_float,
             }
         elif current_standard == GAS_BILLING_平均单价:
             schema = {
-                vol.Required(CONF_GAS_AVERAGE_PRICE, default=existing_data.get(CONF_GAS_AVERAGE_PRICE, 2.65)): cv.positive_float,
+                vol.Required(CONF_GAS_AVERAGE_PRICE, default=existing_data.get(CONF_GAS_AVERAGE_PRICE, 2.66)): cv.positive_float,
             }
 
         return schema

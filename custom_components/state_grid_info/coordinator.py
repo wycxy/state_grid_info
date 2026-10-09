@@ -26,6 +26,7 @@ from .const import (
     BILLING_STANDARD_MONTH_阶梯_峰平谷_变动阶梯,
     BILLING_STANDARD_MONTH_阶梯_峰平谷_变动价格,
     BILLING_STANDARD_OTHER_平均单价,
+    BILLING_STANDARD_峰谷计费,
     BILLING_STANDARD_YEAR_阶梯,
     BILLING_STANDARD_YEAR_阶梯_峰平谷,
     CONF_AVERAGE_PRICE,
@@ -677,6 +678,7 @@ class StateGridInfoCoordinator(DataUpdateCoordinator):
             BILLING_STANDARD_MONTH_阶梯_峰平谷_变动阶梯: "月阶梯峰平谷变动阶梯",
             BILLING_STANDARD_MONTH_阶梯_峰平谷_变动价格: "月阶梯峰平谷变动价格",
             BILLING_STANDARD_OTHER_平均单价: "平均单价",
+            BILLING_STANDARD_峰谷计费: "峰谷计费",
         }
         return billing_standard_map.get(billing_standard, billing_standard)
 
@@ -688,7 +690,7 @@ class StateGridInfoCoordinator(DataUpdateCoordinator):
         if billing_standard in (BILLING_STANDARD_YEAR_阶梯, BILLING_STANDARD_YEAR_阶梯_峰平谷):
             accumulated = await self.async_get_year_accumulated_kwh(latest_day)
             ladder_level_1 = self.config.get(CONF_LADDER_LEVEL_1, 2160)
-            ladder_level_2 = self.config.get(CONF_LADDER_LEVEL_2, 4200)
+            ladder_level_2 = self.config.get(CONF_LADDER_LEVEL_2, 3120)
             if accumulated <= ladder_level_1:
                 current_ladder = "第1档"
             elif accumulated <= ladder_level_2:
@@ -745,7 +747,7 @@ class StateGridInfoCoordinator(DataUpdateCoordinator):
 
         if billing_standard in (BILLING_STANDARD_YEAR_阶梯, BILLING_STANDARD_YEAR_阶梯_峰平谷):
             attrs["年阶梯第2档起始电量"] = self.config.get(CONF_LADDER_LEVEL_1, 2160)
-            attrs["年阶梯第3档起始电量"] = self.config.get(CONF_LADDER_LEVEL_2, 4200)
+            attrs["年阶梯第3档起始电量"] = self.config.get(CONF_LADDER_LEVEL_2, 3120)
 
             year_ladder_start = self.config.get(CONF_YEAR_LADDER_START, "0101")
             current_date = datetime.now()
@@ -761,9 +763,9 @@ class StateGridInfoCoordinator(DataUpdateCoordinator):
             attrs["当前年阶梯结束日期"] = f"{end_date.year}.{end_date.month:02d}.{end_date.day:02d}"
 
             if billing_standard == BILLING_STANDARD_YEAR_阶梯:
-                attrs["年阶梯第1档电价"] = self.config.get(CONF_LADDER_PRICE_1, 0.4983)
-                attrs["年阶梯第2档电价"] = self.config.get(CONF_LADDER_PRICE_2, 0.5483)
-                attrs["年阶梯第3档电价"] = self.config.get(CONF_LADDER_PRICE_3, 0.7983)
+                attrs["年阶梯第1档电价"] = self.config.get(CONF_LADDER_PRICE_1, 0.56)
+                attrs["年阶梯第2档电价"] = self.config.get(CONF_LADDER_PRICE_2, 0.61)
+                attrs["年阶梯第3档电价"] = self.config.get(CONF_LADDER_PRICE_3, 0.86)
             else:
                 self._append_tou_price_attributes(attrs, "年阶梯", CONF_LADDER_PRICE_1, "第1档")
                 self._append_tou_price_attributes(attrs, "年阶梯", CONF_LADDER_PRICE_2, "第2档")
@@ -828,6 +830,10 @@ class StateGridInfoCoordinator(DataUpdateCoordinator):
         if billing_standard == BILLING_STANDARD_OTHER_平均单价:
             attrs["平均单价"] = self.config.get(CONF_AVERAGE_PRICE, 0.6)
 
+        if billing_standard == BILLING_STANDARD_峰谷计费:
+            attrs["峰电价"] = self.config.get(CONF_PRICE_PEAK, 0.598)
+            attrs["谷电价"] = self.config.get(CONF_PRICE_VALLEY, 0.448)
+
         return attrs
 
     def _append_tou_price_attributes(self, attrs: dict[str, Any], prefix: str, ladder_key: str, ladder_label: str) -> None:
@@ -871,6 +877,20 @@ class StateGridInfoCoordinator(DataUpdateCoordinator):
             return await self._async_calculate_tiered_cost(day_data, yearly=False, tou=True, variable_valley=True)
         if standard == BILLING_STANDARD_OTHER_平均单价:
             return day_ele_num * float(self.config.get(CONF_AVERAGE_PRICE, 0.6))
+        if standard == BILLING_STANDARD_峰谷计费:
+            peak_price = float(self.config.get(CONF_PRICE_PEAK, 0.598))
+            valley_price = float(self.config.get(CONF_PRICE_VALLEY, 0.448))
+            peak_usage = float(day_data.get("dayPPq", 0))
+            valley_usage = float(day_data.get("dayVPq", 0))
+            flat_usage = float(day_data.get("dayTPq", 0))
+            tip_usage = float(day_data.get("dayNPq", 0))
+            return round(
+                peak_usage * peak_price
+                + valley_usage * valley_price
+                + flat_usage * peak_price
+                + tip_usage * peak_price,
+                2,
+            )
         return 0.0
 
     async def _async_calculate_tiered_cost(
@@ -908,9 +928,9 @@ class StateGridInfoCoordinator(DataUpdateCoordinator):
         )
 
         if not tou:
-            price_1 = float(self.config.get(CONF_LADDER_PRICE_1, 0.4983 if yearly else 0.5224))
-            price_2 = float(self.config.get(CONF_LADDER_PRICE_2, 0.5483 if yearly else 0.6224))
-            price_3 = float(self.config.get(CONF_LADDER_PRICE_3, 0.7983 if yearly else 0.8334))
+            price_1 = float(self.config.get(CONF_LADDER_PRICE_1, 0.56 if yearly else 0.5224))
+            price_2 = float(self.config.get(CONF_LADDER_PRICE_2, 0.61 if yearly else 0.6224))
+            price_3 = float(self.config.get(CONF_LADDER_PRICE_3, 0.86 if yearly else 0.8334))
             return first_part * price_1 + second_part * price_2 + third_part * price_3
 
         month = int(day[5:7]) if len(day) >= 7 else 1

@@ -31,6 +31,7 @@ BILLING_STANDARD_MONTH_阶梯_峰平谷_变动价格 = "month_ladder_fpg_variabl
 BILLING_STANDARD_MONTH_阶梯_峰平谷 = "month_ladder_fpg"
 BILLING_STANDARD_MONTH_阶梯 = "month_ladder"
 BILLING_STANDARD_OTHER_平均单价 = "other_average"
+BILLING_STANDARD_峰谷计费 = "peak_valley"
 
 BILLING_STANDARD_OPTIONS = [
     BILLING_STANDARD_YEAR_阶梯_峰平谷,
@@ -40,6 +41,7 @@ BILLING_STANDARD_OPTIONS = [
     BILLING_STANDARD_MONTH_阶梯_峰平谷,
     BILLING_STANDARD_MONTH_阶梯,
     BILLING_STANDARD_OTHER_平均单价,
+    BILLING_STANDARD_峰谷计费,
 ]
 
 BILLING_STANDARD_NAMES = {
@@ -50,6 +52,7 @@ BILLING_STANDARD_NAMES = {
     BILLING_STANDARD_MONTH_阶梯_峰平谷: "月阶梯峰平谷计费",
     BILLING_STANDARD_MONTH_阶梯: "月阶梯计费",
     BILLING_STANDARD_OTHER_平均单价: "平均单价计费",
+    BILLING_STANDARD_峰谷计费: "峰谷计费",
 }
 
 # MQTT 相关常量

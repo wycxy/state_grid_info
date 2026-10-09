@@ -434,20 +434,20 @@ class StateGridGasSensor(SensorEntity):
         """根据配置的阶梯计费标准和当前阶梯周期用量计算当前气价。"""
         billing = self.config.get(CONF_GAS_BILLING_STANDARD, "")
         if billing == GAS_BILLING_平均单价:
-            return self.config.get(CONF_GAS_AVERAGE_PRICE, 2.65)
+            return self.config.get(CONF_GAS_AVERAGE_PRICE, 2.66)
         elif billing in (GAS_BILLING_YEAR_阶梯, GAS_BILLING_MONTH_阶梯):
-            level1 = self.config.get(CONF_GAS_LADDER_LEVEL_1, 360)
+            level1 = self.config.get(CONF_GAS_LADDER_LEVEL_1, 600)
             level2 = self.config.get(CONF_GAS_LADDER_LEVEL_2, 600)
-            price1 = self.config.get(CONF_GAS_LADDER_PRICE_1, 2.65)
-            price2 = self.config.get(CONF_GAS_LADDER_PRICE_2, 2.85)
-            price3 = self.config.get(CONF_GAS_LADDER_PRICE_3, 3.50)
+            price1 = self.config.get(CONF_GAS_LADDER_PRICE_1, 2.66)
+            price2 = self.config.get(CONF_GAS_LADDER_PRICE_2, 3.46)
+            price3 = self.config.get(CONF_GAS_LADDER_PRICE_3, 3.46)
             if ladder_period_usage < level1:
                 return price1
             elif ladder_period_usage < level2:
                 return price2
             else:
                 return price3
-        return self.config.get(CONF_GAS_AVERAGE_PRICE, 2.65)
+        return self.config.get(CONF_GAS_AVERAGE_PRICE, 2.66)
 
     def _get_billing_standard_attrs(self, ladder_period_usage):
         """获取计费标准属性，格式与电费实体一致，嵌套在'计费标准'下。"""
@@ -456,13 +456,13 @@ class StateGridGasSensor(SensorEntity):
         attrs["计费标准"] = GAS_BILLING_NAMES.get(billing, "")
 
         if billing == GAS_BILLING_平均单价:
-            attrs["平均气价"] = self.config.get(CONF_GAS_AVERAGE_PRICE, 2.65)
+            attrs["平均气价"] = self.config.get(CONF_GAS_AVERAGE_PRICE, 2.66)
         elif billing == GAS_BILLING_YEAR_阶梯:
-            level1 = self.config.get(CONF_GAS_LADDER_LEVEL_1, 360)
+            level1 = self.config.get(CONF_GAS_LADDER_LEVEL_1, 600)
             level2 = self.config.get(CONF_GAS_LADDER_LEVEL_2, 600)
-            price1 = self.config.get(CONF_GAS_LADDER_PRICE_1, 2.65)
-            price2 = self.config.get(CONF_GAS_LADDER_PRICE_2, 2.85)
-            price3 = self.config.get(CONF_GAS_LADDER_PRICE_3, 3.50)
+            price1 = self.config.get(CONF_GAS_LADDER_PRICE_1, 2.66)
+            price2 = self.config.get(CONF_GAS_LADDER_PRICE_2, 3.46)
+            price3 = self.config.get(CONF_GAS_LADDER_PRICE_3, 3.46)
             attrs["年阶梯第2档起始气量"] = level1
             attrs["年阶梯第3档起始气量"] = level2
             attrs["年阶梯第1档气价"] = price1
@@ -491,11 +491,11 @@ class StateGridGasSensor(SensorEntity):
                 attrs["当前年阶梯档"] = "第3档"
             attrs["年阶梯累计用气量"] = round(ladder_period_usage, 2)
         elif billing == GAS_BILLING_MONTH_阶梯:
-            level1 = self.config.get(CONF_GAS_LADDER_LEVEL_1, 30)
+            level1 = self.config.get(CONF_GAS_LADDER_LEVEL_1, 50)
             level2 = self.config.get(CONF_GAS_LADDER_LEVEL_2, 50)
-            price1 = self.config.get(CONF_GAS_LADDER_PRICE_1, 2.65)
-            price2 = self.config.get(CONF_GAS_LADDER_PRICE_2, 2.85)
-            price3 = self.config.get(CONF_GAS_LADDER_PRICE_3, 3.50)
+            price1 = self.config.get(CONF_GAS_LADDER_PRICE_1, 2.66)
+            price2 = self.config.get(CONF_GAS_LADDER_PRICE_2, 3.46)
+            price3 = self.config.get(CONF_GAS_LADDER_PRICE_3, 3.46)
             attrs["月阶梯第2档起始气量"] = level1
             attrs["月阶梯第3档起始气量"] = level2
             attrs["月阶梯第1档气价"] = price1
